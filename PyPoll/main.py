@@ -1,73 +1,71 @@
 import csv 
 import os
 
-#os for other systems
+# Define file path
 filepath = os.path.join("Resources", "election_data.csv")
 
-#Read file
+# Initialize variables
+ID = []
+Candidates = []
+
+# Read file
 with open(filepath) as csv_file:
-    csvreader=csv.reader(csv_file, delimiter=",")
-    header=next(csvreader)
+    csvreader = csv.reader(csv_file, delimiter=",")
+    header = next(csvreader)
 
-#List Variables
-    ID = []
-    Candidates = []
-    
-    #Find info
+    # Extract data
     for row in csvreader:
+        ID.append(row[0])
+        Candidates.append(row[2])
 
-        ID.append((row[0]))
-        Candidates.append((row[2]))
+# Find total number of votes
+total_votes = len(ID)
 
-#List Candidates to find vote data
-unique_candidates = []
-for i in Candidates:
-    if i not in unique_candidates:
-        unique_candidates.append(i)
+# Create a dictionary to store candidate vote counts
+candidate_votes = {}
+for candidate in Candidates:
+    if candidate in candidate_votes:
+        candidate_votes[candidate] += 1
+    else:
+        candidate_votes[candidate] = 1
 
-charles = 0
-diana = 0
-raymon = 0
+# Calculate percentages and find the winner
+winner = None
+winner_votes = 0
 
-for name in Candidates:
-    if name == "Charles Casper Stockham":
-        charles =  charles + 1  
+print("Election Results")
+print("-------------------------")
+print(f"Total Votes: {total_votes}")
+print("-------------------------")
 
-    elif name == "Diana DeGette":
-        diana = diana + 1
-
-    else: raymon = raymon + 1 
-
-print(charles)
-print(diana)
-print(raymon)
-
-#Find % of popular votes
-Total_Votes = (int)(charles) + (int)(diana) + (int)(raymon)
-print(Total_Votes)
-
-charles_percentage = round((charles / Total_Votes) *100, 1)
-diana_percentage = round((diana / Total_Votes) *100, 1)
-raymon_percentage = round((raymon / Total_Votes) *100, 1)
-
-print(charles_percentage)
-print(diana_percentage)
-print(raymon_percentage)
-
-#Find Winner
-winner = max(charles, diana, raymon)
-print (str(winner))
-
-
-#output
-with open("output.txt", "w") as txt_file:
-
-    txt_file.write("Election Results")
-    txt_file.write("\n") 
-    txt_file.write("----------------")
-    txt_file.write("\n")
-    txt_file.write(str(winner))
-    txt_file.write("\n")
-    txt_file.write("----------------")
-    txt_file.write("\n")
+for candidate, votes in candidate_votes.items():
+    percentage = (votes / total_votes) * 100
+    formatted_percentage = "{:.3f}%".format(percentage)  # Format to 3 decimal places
+    print(f"{candidate}: {formatted_percentage} ({votes})")
     
+    if votes > winner_votes:
+        winner = candidate
+        winner_votes = votes
+
+print("-------------------------")
+print(f"Winner: {winner}")
+print("-------------------------")
+
+# Save output to a text file
+output_file = "output.txt"
+with open(output_file, "w") as txt_file:
+    txt_file.write("Election Results\n")
+    txt_file.write("-------------------------\n")
+    txt_file.write(f"Total Votes: {total_votes}\n")
+    txt_file.write("-------------------------\n")
+
+    for candidate, votes in candidate_votes.items():
+        percentage = (votes / total_votes) * 100
+        formatted_percentage = "{:.3f}%".format(percentage)
+        txt_file.write(f"{candidate}: {formatted_percentage} ({votes})\n")
+
+    txt_file.write("-------------------------\n")
+    txt_file.write(f"Winner: {winner}\n")
+    txt_file.write("-------------------------\n")
+
+print("Results saved to", output_file)
